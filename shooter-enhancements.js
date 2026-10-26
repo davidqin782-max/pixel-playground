@@ -1,0 +1,33 @@
+function shooter(){
+  const worldW=1800,worldH=1200;
+  let x=900,y=600,aimX=0,aimY=-1,bullets=[],enemies=[],loot=[],started=false,timer=0,hp=profile.purchases.medKit?140:100,ammo=profile.purchases.ammoCache?90:60,money=0,invuln=0;
+  const cells=[{x:220,y:180},{x:520,y:380},{x:980,y:220},{x:1320,y:460},{x:1580,y:820},{x:640,y:980}];
+  const buildings=Array.from({length:10},(_,i)=>({x:150+(i%5)*340+Math.random()*35,y:140+Math.floor(i/5)*470+Math.random()*50,w:160,h:160,doors:1+Math.floor(Math.random()*3)}));
+  function spawnZombie(){let side=Math.floor(Math.random()*4),zx,zy;if(side===0){zx=60+Math.random()*(worldW-120);zy=-35}else if(side===1){zx=-35;zy=80+Math.random()*(worldH-160)}else if(side===2){zx=worldW+35;zy=80+Math.random()*(worldH-160)}else{zx=60+Math.random()*(worldW-120);zy=worldH+35}enemies.push({x:zx,y:zy,spd:1.15+Math.random()*.9,doorTimer:0})}
+  function insideBuilding(nx,ny){return buildings.find(b=>nx>b.x-18&&nx<b.x+b.w+18&&ny>b.y-18&&ny<b.y+b.h+18)}
+  function dropLoot(px,py){loot.push({x:px,y:py,type:Math.random()<.55?'ammo':'money',ttl:900})}
+  function frame(){
+    if(!running)return;
+    if(keys['arrowleft']||keys['a']){x-=5;aimX=-1;aimY=0}if(keys['arrowright']||keys['d']){x+=5;aimX=1;aimY=0}if(keys['arrowup']||keys['w']){y-=5;aimX=0;aimY=-1}if(keys['arrowdown']||keys['s']){y+=5;aimX=0;aimY=1}
+    if((keys['arrowleft']||keys['a'])&&(keys['arrowup']||keys['w'])){aimX=-.707;aimY=-.707}if((keys['arrowright']||keys['d'])&&(keys['arrowup']||keys['w'])){aimX=.707;aimY=-.707}if((keys['arrowleft']||keys['a'])&&(keys['arrowdown']||keys['s'])){aimX=-.707;aimY=.707}if((keys['arrowright']||keys['d'])&&(keys['arrowdown']||keys['s'])){aimX=.707;aimY=.707}
+    x=Math.max(35,Math.min(worldW-35,x));y=Math.max(80,Math.min(worldH-45,y));
+    if(keys[' ']){if(!started&&hp<=0){hp=profile.purchases.medKit?140:100;ammo=profile.purchases.ammoCache?90:60;money=0;enemies=[];bullets=[];loot=[];x=worldW/2;y=worldH/2}started=true;if(ammo>0&&!bullets.some(b=>Math.abs(b.x-x)<12&&Math.abs(b.y-y)<12)){bullets.push({x:x+aimX*25,y:y+aimY*25,dx:aimX*9,dy:aimY*9});ammo--}}
+    if(started){
+      timer++;if(invuln>0)invuln--;if(timer%50===0){let wave=1+(Math.random()>.6?1:0);for(let i=0;i<wave;i++)spawnZombie()}
+      bullets.forEach(b=>{b.x+=b.dx;b.y+=b.dy});
+      const occupied=buildings.find(b=>x>b.x&&x<b.x+b.w&&y>b.y&&y<b.y+b.h);
+      enemies.forEach(e=>{let targetX=x,targetY=y,ignoreBuilding=false,waiting=false;if(occupied&&!e.enteredBuilding){if(e.routeStage===undefined){e.routeStage=0;e.routeX=e.x<occupied.x+occupied.w/2?occupied.x-30:occupied.x+occupied.w+30;e.routeY=e.y<occupied.y+occupied.h/2?occupied.y-30:occupied.y+occupied.h+30}if(e.routeStage===0){targetX=e.x;targetY=e.routeY;if(Math.abs(e.y-e.routeY)<12)e.routeStage=1}else if(e.routeStage===1){targetX=e.routeX;targetY=e.routeY;if(Math.abs(e.x-e.routeX)<12)e.routeStage=2}else{targetX=occupied.x+occupied.w/2;targetY=occupied.y+occupied.h+30;let atDoor=Math.hypot(e.x-targetX,e.y-targetY)<36;if(atDoor){waiting=true;e.doorTimer=(e.doorTimer||0)+1;if(e.doorTimer>=240){e.enteredBuilding=occupied;e.doorTimer=0}}else e.doorTimer=0}}let angle=Math.atan2(targetY-e.y,targetX-e.x),nx=e.x+Math.cos(angle)*e.spd,ny=e.y+Math.sin(angle)*e.spd,building=insideBuilding(nx,ny);if(e.enteredBuilding&&building===e.enteredBuilding)ignoreBuilding=true;if(!waiting&&(!building||ignoreBuilding)){e.x=nx;e.y=ny}else if(!waiting){e.routeStage=undefined}});
+      enemies=enemies.filter(e=>{let hit=bullets.some(b=>Math.abs(b.x-e.x)<25&&Math.abs(b.y-e.y)<25);if(hit){score+=50;dropLoot(e.x,e.y);return false}if(Math.hypot(e.x-x,e.y-y)<32&&invuln<=0){hp=Math.max(0,hp-20);invuln=45;e.x+=(e.x-x)*.25;e.y+=(e.y-y)*.25;if(hp===0){started=false;messageEl.textContent='YOU WERE OVERRUN — PRESS SPACE TO RETRY'}}return e.x>-100&&e.x<worldW+100&&e.y>-100&&e.y<worldH+100});
+      bullets=bullets.filter(b=>b.x>-40&&b.x<worldW+40&&b.y>-40&&b.y<worldH+40);
+      loot=loot.filter(item=>{item.ttl--;if(Math.hypot(item.x-x,item.y-y)<34){if(item.type==='ammo')ammo=Math.min(120,ammo+12);else money+=10;score+=25;return false}return item.ttl>0});
+    }
+    let camX=Math.max(0,Math.min(worldW-900,x-450)),camY=Math.max(0,Math.min(worldH-480,y-240));bg('#201c39');ctx.fillStyle='#111632';ctx.fillRect(0,0,900,480);ctx.strokeStyle='#293b76';ctx.lineWidth=2;for(let gx=0;gx<=worldW;gx+=90){ctx.beginPath();ctx.moveTo(gx-camX,0);ctx.lineTo(gx-camX,worldH);ctx.stroke()}for(let gy=0;gy<=worldH;gy+=90){ctx.beginPath();ctx.moveTo(0,gy-camY);ctx.lineTo(worldW,gy-camY);ctx.stroke()}
+    buildings.forEach(b=>{let sx=b.x-camX,sy=b.y-camY;ctx.fillStyle='#303765';ctx.fillRect(sx,sy,b.w,b.h);ctx.strokeStyle='#5f70bd';ctx.lineWidth=4;ctx.strokeRect(sx,sy,b.w,b.h);ctx.fillStyle='#ff5c35';ctx.fillRect(sx+b.w/2-16,sy+b.h-34,32,34);ctx.fillStyle='#ffd23f';ctx.fillRect(sx+b.w/2+6,sy+b.h-18,5,5);text(String(b.doors),sx+b.w/2,sy+b.h-43,12,'#ffd23f','center')});
+    cells.forEach(c=>{let sx=c.x-camX,sy=c.y-camY;ctx.shadowBlur=16;ctx.shadowColor='#35f6ff';ctx.fillStyle='#35f6ff';ctx.fillRect(sx-7,sy-7,14,14);ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.fillRect(sx-2,sy-2,4,4)});
+    loot.forEach(item=>{let sx=item.x-camX,sy=item.y-camY;ctx.shadowBlur=12;ctx.shadowColor=item.type==='ammo'?'#ffd23f':'#5fd3c0';ctx.fillStyle=item.type==='ammo'?'#ffd23f':'#5fd3c0';ctx.fillRect(sx-8,sy-8,16,16);ctx.shadowBlur=0;text(item.type==='ammo'?'▮':'$',sx,sy+5,14,'#17151c','center')});
+    bullets.forEach(b=>{let sx=b.x-camX,sy=b.y-camY;ctx.save();ctx.translate(sx,sy);ctx.rotate(Math.atan2(b.dy,b.dx)+Math.PI/2);ctx.shadowBlur=10;ctx.shadowColor='#ffd23f';ctx.fillStyle='#ffd23f';ctx.fillRect(-2,-12,4,24);ctx.restore()});
+    enemies.forEach(e=>{let sx=e.x-camX,sy=e.y-camY;ctx.fillStyle='#79d34b';ctx.fillRect(sx-14,sy-17,28,30);ctx.fillStyle='#172b43';ctx.fillRect(sx-8,sy-8,5,6);ctx.fillRect(sx+4,sy-8,5,6);ctx.fillStyle='#ff5c35';ctx.fillRect(sx-20,sy-7,7,5);ctx.fillRect(sx+14,sy-2,7,5);ctx.fillRect(sx-10,sy+13,6,9);ctx.fillRect(sx+5,sy+13,6,9);if(e.doorTimer>0){ctx.fillStyle='#17151c';ctx.fillRect(sx-18,sy-29,36,5);ctx.fillStyle='#ffd23f';ctx.fillRect(sx-18,sy-29,36*(e.doorTimer/240),5);text('4s',sx,sy-34,8,'#ffd23f','center')}});
+    ctx.save();ctx.translate(-camX,-camY);if(invuln%6<3&&started)drawShooterCharacter(x,y,timer,aimX,aimY);else if(!started)drawShooterCharacter(x,y,timer,aimX,aimY);ctx.restore();
+    livesEl.textContent=`HP ${hp} · AMMO ${ammo} · $${money}`;if(!started)text(hp<100?'YOU WERE OVERRUN — PRESS SPACE TO RETRY':ammo===0?'OUT OF AMMO — FIND BULLET LOOT':'WASD TO WALK/AIM · SPACE TO SHOOT',450,220,17,hp<100?'#ff5c35':'#ffd23f','center');hud();raf=requestAnimationFrame(frame)
+  }frame();
+}

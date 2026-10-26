@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixel Playground — Three games. One place.</title>
+  <style>
+    .redeem-panel{margin-top:32px;padding:24px;background:var(--teal);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);display:grid;grid-template-columns:1fr auto;gap:14px 24px;align-items:end}.redeem-panel h3{font-size:24px;letter-spacing:-.06em;margin:6px 0}.redeem-panel p{font-size:12px;opacity:.75}.redeem-row{display:flex;gap:8px}.redeem-row input{width:210px;border:2px solid var(--ink);padding:11px 12px;background:var(--paper);font:11px 'DM Mono';text-transform:uppercase}.redeem-message{grid-column:1/-1;min-height:16px;font:11px 'DM Mono'}.redeem-message.success{color:var(--blue)}.redeem-message.error{color:var(--orange)}.shop-item{animation:shopRise .55s both}.shop-item:nth-child(2){animation-delay:.06s}.shop-item:nth-child(3){animation-delay:.12s}.shop-item:nth-child(4){animation-delay:.18s}.shop-item:nth-child(5){animation-delay:.24s}.shop-item:nth-child(6){animation-delay:.3s}.shop-item:nth-child(7){animation-delay:.36s}.shop-item:hover{transform:translateY(-6px);box-shadow:7px 9px 0 var(--ink)}.shop-icon{animation:iconFloat 2.4s ease-in-out infinite}.case-item .shop-icon{animation:caseGlow 1.7s ease-in-out infinite}.shop-buy{transition:transform .15s,background .15s}.shop-buy:active{transform:scale(.92)}.case-result.show{animation:resultPop .4s both}.redeem-panel{animation:shopRise .6s .4s both}.skin-collection{margin-top:42px}.skin-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:18px}.skin-card{position:relative;min-height:150px;padding:15px;background:var(--paper);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);animation:shopRise .45s both}.skin-card.locked{opacity:.45;filter:grayscale(1)}.skin-swatch{height:62px;margin-bottom:12px;border:2px solid var(--ink);display:grid;place-items:center;font-size:30px;font-weight:700;animation:skinPulse 2s ease-in-out infinite}.skin-card h4{font-size:14px;margin:0 0 4px}.skin-card p{font:9px 'DM Mono';opacity:.7;margin:0 0 11px}.skin-card button{border:0;background:var(--ink);color:var(--paper);padding:8px 10px;font:9px 'DM Mono';cursor:pointer}.skin-card button.equipped{background:var(--teal);color:var(--ink)}.skin-card button:disabled{cursor:not-allowed;opacity:.6}.skin-card.equipped{border-color:var(--teal);box-shadow:4px 4px 0 var(--teal)}@keyframes shopRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}@keyframes iconFloat{50%{transform:translateY(-5px) rotate(-2deg)}}@keyframes caseGlow{50%{box-shadow:0 0 24px rgba(61,77,255,.65);transform:scale(1.04)}}@keyframes resultPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}@keyframes skinPulse{50%{box-shadow:0 0 18px currentColor}}@media(max-width:800px){.redeem-panel{grid-template-columns:1fr}.redeem-row{width:100%}.redeem-row input{flex:1;width:auto}.skin-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Space Mono',monospace}h1,h2,h3,.modal-header h2,.brand b{font-family:'Silkscreen',monospace;letter-spacing:.02em}h1{letter-spacing:-.04em}.game-tag,.section-kicker,.eyebrow,.modal-kicker,.shop-buy,.shop-buy-row,.redeem-row input,.redeem-message,.skin-card p{font-family:'Space Mono',monospace}
+    .game-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;opacity:.88;filter:saturate(.9) contrast(1.05);transition:transform .5s ease,opacity .5s ease}.game-card:hover .game-preview{transform:scale(1.06);opacity:1}.case-preview{width:100%;height:100%;object-fit:contain;image-rendering:auto;transform:scale(1.18);transition:transform .35s ease}.case-item:hover .case-preview{transform:scale(1.28) rotate(-2deg)}
+  </style>
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Pixel Playground home">
+      <span class="brand-mark">PP</span>
+      <span>PIXEL<br><b>PLAYGROUND</b></span>
+    </a>
+    <div class="header-status"><span class="status-dot"></span> SERVER ONLINE <span class="slash">//</span> 3 GAMES READY</div>
+    <div class="header-actions"><a class="shop-nav" href="#shop">SHOP</a><span class="points-pill">✦ <b id="pointsDisplay">500</b></span><a class="jump-link" href="#games">EXPLORE <span>↓</span></a></div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pixel-star">✦</span> YOUR NEW BREAK-TIME HQ</div>
+        <h1>PLAY<br><em>MORE.</em><br>WAIT LESS.</h1>
+        <p>Three tiny worlds. One big pixel playground.<br>Pick a game, chase a high score, and run it back.</p>
+        <a class="primary-cta" href="#games">CHOOSE YOUR GAME <span>→</span></a>
+      </div>
+      <div class="hero-art" aria-label="Animated pixel arcade illustration">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="pixel-sun"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="floating-chip chip-one">+100</div><div class="floating-chip chip-two">READY!</div>
+        <div class="arcade-machine">
+          <div class="arcade-top">P<span>P</span></div>
+          <div class="arcade-screen"><span>PRESS</span><strong>START</strong><small>TO PLAY</small></div>
+          <div class="arcade-controls"><b></b><i></i><i></i><i></i></div>
+          <div class="arcade-base"></div>
+        </div>
+        <div class="hero-ground"></div>
+      </div>
+    </section>
+
+    <section class="games-section" id="games">
+      <div class="section-heading"><div><span class="section-kicker">01 / SELECT A WORLD</span><h2>WHAT'S YOUR<br><em>MOOD?</em></h2></div><p class="section-note">No downloads.<br>Just click and play.</p></div>
+      <div class="game-grid">
+        <article class="game-card parkour-card">
+          <div class="card-art parkour-art"><img class="game-preview" src="images/neon-speedrun-preview.png" alt="Neon Speedrun gameplay preview"></div>
+          <div class="card-body"><div class="card-top"><span class="game-tag">01 / ACTION</span><span class="card-arrow">↗</span></div><h3>NEON<br><em>SPEEDRUN</em></h3><p>Dash through the city grid. Boost past barriers. Chase the high score.</p><button class="play-button" data-game="parkour">PLAY NOW <span>→</span></button></div>
+        </article>
+        <article class="game-card shooter-card">
+          <div class="card-art shooter-art"><img class="game-preview" src="images/neon-blaster-preview.png" alt="Neon Blaster gameplay preview"></div>
+          <div class="card-body"><div class="card-top"><span class="game-tag">02 / ARCADE</span><span class="card-arrow">↗</span></div><h3>NEON<br><em>BLASTER</em></h3><p>Walk the grid. Hunt the zombies. Keep the night alive.</p><button class="play-button" data-game="shooter">PLAY NOW <span>→</span></button></div>
+        </article>
+        <article class="game-card survival-card">
+          <div class="card-art survival-art"><img class="game-preview" src="images/last-light-preview.png" alt="Last Light gameplay preview"></div>
+          <div class="card-body"><div class="card-top"><span class="game-tag">03 / SURVIVAL</span><span class="card-arrow">↗</span></div><h3>LAST<br><em>LIGHT</em></h3><p>Gather. Build. Make it through the night.</p><button class="play-button" data-game="survival">PLAY NOW <span>→</span></button></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="shop-section" id="shop">
+      <div class="section-heading"><div><span class="section-kicker">02 / THE PIXEL SHOP</span><h2>SPEND YOUR<br><em>POINTS.</em></h2></div><p class="section-note">Every purchase<br>changes the game.</p></div>
+      <div class="shop-banner"><span>✦</span><p>Earn points by playing. Buy upgrades. Come back stronger.</p><strong><span id="shopPoints">500</span> PTS · <span id="shopCoins">0</span> COINS</strong></div>
+      <div class="shop-grid">
+        <article class="shop-item"><div class="shop-icon icon-dash">↯</div><div><span class="game-tag">NEON SPEEDRUN</span><h3>HYPER DASH</h3><p>Dash farther and move faster during every run.</p></div><div class="shop-buy-row"><b>300 PTS</b><button class="shop-buy" data-shop-item="hyperDash">BUY</button></div></article>
+        <article class="shop-item"><div class="shop-icon icon-coin">✦</div><div><span class="game-tag">ALL GAMES</span><h3>COIN BOOST</h3><p>Collected coins and pickups are worth double points.</p></div><div class="shop-buy-row"><b>450 PTS</b><button class="shop-buy" data-shop-item="coinBoost">BUY</button></div></article>
+        <article class="shop-item"><div class="shop-icon icon-ammo">▮</div><div><span class="game-tag">NEON BLASTER</span><h3>AMMO CACHE</h3><p>Start each zombie hunt with 30 extra bullets.</p></div><div class="shop-buy-row"><b>250 PTS</b><button class="shop-buy" data-shop-item="ammoCache">BUY</button></div></article>
+        <article class="shop-item"><div class="shop-icon icon-med">+</div><div><span class="game-tag">NEON BLASTER</span><h3>MED KIT</h3><p>Start with 40 extra HP and survive longer.</p></div><div class="shop-buy-row"><b>350 PTS</b><button class="shop-buy" data-shop-item="medKit">BUY</button></div></article>
+        <article class="shop-item case-item"><div class="shop-icon icon-case"><img class="case-preview" src="images/street-skin-case.png" alt="Street skin case"></div><div><span class="game-tag">SKIN CASE · COMMON</span><h3>STREET CASE</h3><p>Unbox a new character skin. Better skins have smaller chances.</p></div><div class="shop-buy-row"><b>25 COINS</b><button class="shop-buy" data-case="street">OPEN CASE</button></div></article>
+        <article class="shop-item case-item"><div class="shop-icon icon-case neon-case"><img class="case-preview" src="images/neon-skin-case.png" alt="Neon skin case"></div><div><span class="game-tag">SKIN CASE · RARE</span><h3>NEON CASE</h3><p>Higher chance of rare and epic animated-looking colors.</p></div><div class="shop-buy-row"><b>60 COINS</b><button class="shop-buy" data-case="neon">OPEN CASE</button></div></article>
+        <article class="shop-item case-item"><div class="shop-icon icon-case gold-case"><img class="case-preview" src="images/gold-skin-case.png" alt="Gold skin case"></div><div><span class="game-tag">SKIN CASE · ELITE</span><h3>GOLD CASE</h3><p>Costs more, but gives the best odds for legendary skins.</p></div><div class="shop-buy-row"><b>120 COINS</b><button class="shop-buy" data-case="gold">OPEN CASE</button></div></article>
+      </div>
+      <div id="caseResult" class="case-result" aria-live="polite"></div>
+      <div class="redeem-panel">
+        <div><span class="game-tag">BONUS TERMINAL</span><h3>REDEEM A CODE</h3><p>Enter a secret code to claim free coins.</p></div>
+        <div class="redeem-row"><input id="redeemCode" type="text" maxlength="80" placeholder="ENTER CODE" autocomplete="off"><button id="redeemButton" class="shop-buy" type="button">REDEEM</button></div>
+        <div id="redeemMessage" class="redeem-message" aria-live="polite"></div>
+      </div>
+      <div class="skin-collection">
+        <div class="section-heading"><div><span class="section-kicker">YOUR COLLECTION</span><h3>SKIN<br><em>LOCKER.</em></h3></div><p class="section-note">Equip any skin<br>you have unboxed.</p></div>
+        <div id="skinCollection" class="skin-grid"></div>
+      </div>
+    </section>
+
+    <section class="how-section"><span class="section-kicker">03 / QUICK START</span><div class="steps"><div><b>01</b><span>Choose<br>a world</span></div><div><b>02</b><span>Learn<br>the move</span></div><div><b>03</b><span>Beat your<br>best score</span></div></div><p class="keyboard-hint">ALL GAMES PLAYABLE WITH KEYBOARD <kbd>WASD</kbd> <kbd>SPACE</kbd> <kbd>← →</kbd></p></section>
+  </main>
+  <footer><span>PIXEL PLAYGROUND © 2025</span><span>MADE FOR YOUR NEXT FREE PERIOD <span class="heart">♥</span></span><span>PRESS <kbd>ESC</kbd> TO CLOSE A GAME</span></footer>
+
+  <div class="game-modal" id="gameModal" aria-hidden="true"><div class="modal-shell"><div class="modal-header"><div><span class="modal-kicker" id="modalKicker">01 / ACTION</span><h2 id="modalTitle">NEON SPEEDRUN</h2></div><button class="close-button" id="closeGame" aria-label="Close game">×</button></div><div class="game-stage"><canvas id="gameCanvas" width="900" height="480"></canvas><div class="game-hud"><span id="hudScore">SCORE 0000</span><span id="hudMessage">PRESS SPACE TO START</span><span id="hudLives">♥ ♥ ♥</span></div></div><div class="modal-controls"><span id="controlText">SPACE jump · SHIFT dash</span><button class="restart-button" id="restartGame">RESTART ↻</button></div></div></div>
+  <script src="script.js"></script>
+  <script src="shooter-enhancements.js"></script>
+  <script src="shop-effects.js"></script>
+  <script src="boss-shooter.js"></script>
+</body>
+</html>
