@@ -15,6 +15,10 @@ const redeemCode = document.getElementById('redeemCode');
 const redeemButton = document.getElementById('redeemButton');
 const redeemMessage = document.getElementById('redeemMessage');
 const skinCollection = document.getElementById('skinCollection');
+const externalGameModal = document.getElementById('externalGameModal');
+const externalGameFrame = document.getElementById('externalGameFrame');
+const externalGameTitle = document.getElementById('externalGameTitle');
+const fullscreenExternalGame = document.getElementById('fullscreenExternalGame');
 const PROFILE_KEY = 'pixelPartyProfile';
 const shopCatalog = {hyperDash:{cost:300,label:'HYPER DASH'},coinBoost:{cost:450,label:'COIN BOOST'},ammoCache:{cost:250,label:'AMMO CACHE'},medKit:{cost:350,label:'MED KIT'}};
 const caseCatalog = {street:{cost:25,label:'STREET CASE'},neon:{cost:60,label:'NEON CASE'},gold:{cost:120,label:'GOLD CASE'}};
@@ -42,20 +46,24 @@ function equipSkin(id){if(!profile.skins[id])return;profile.equippedSkin=id;save
 function redeemReward(){const entered=(redeemCode?.value||'').replace(/\s+/g,'').toUpperCase();if(!redeemMessage)return;if(!entered){redeemMessage.textContent='ENTER A CODE FIRST';redeemMessage.className='redeem-message error';return}const storedCode=Object.keys(redeemCatalog).find(code=>code.toUpperCase()===entered),reward=storedCode?redeemCatalog[storedCode]:0;if(!reward){redeemMessage.textContent='CODE NOT FOUND';redeemMessage.className='redeem-message error';return}if(profile.redeemedCodes[storedCode]){redeemMessage.textContent='CODE ALREADY USED';redeemMessage.className='redeem-message error';return}if(reward.unlockCases){profile.caseAccess=true}else{profile.coins+=reward}profile.redeemedCodes[storedCode]=true;saveProfile();renderShop();redeemCode.value='';redeemMessage.textContent=reward.unlockCases?'ALL SKIN CASES UNLOCKED — OPEN THEM FREE':'CODE ACCEPTED — +'+reward+' COINS';redeemMessage.className='redeem-message success'}
 function bankCurrentScore(){const earned=Math.max(0,Math.floor(score));if(earned>bankedScore){profile.points+=earned-bankedScore;bankedScore=earned;saveProfile();renderShop()}}
 
-const games = { parkour:{title:'NEON SPEEDRUN', kicker:'01 / ACTION', controls:'SPACE jump · SHIFT dash'}, shooter:{title:'NEON BLASTER', kicker:'02 / ARCADE', controls:'WASD move/aim · 1/2/3 guns · SPACE fire'}, survival:{title:'LAST LIGHT', kicker:'03 / SURVIVAL', controls:'WASD move · SPACE gather'} };
+const games = { parkour:{title:'NEON SPEEDRUN', kicker:'01 / ACTION', controls:'SPACE jump · SHIFT dash'}, shooter:{title:'NEON BLASTER', kicker:'02 / ARCADE', controls:'WASD move/aim · 1/2/3 guns · SPACE fire'}, survival:{title:'LAST LIGHT', kicker:'03 / SURVIVAL', controls:'WASD move · SPACE gather'}, sandbox:{title:'FLOATING SANDBOX', kicker:'04 / SIMULATION', controls:'WASD tilt · click ship to damage · SPACE start'} };
 document.querySelectorAll('[data-game]').forEach(btn=>btn.addEventListener('click',()=>openGame(btn.dataset.game)));
+const externalGames={ 'drive-mad':{url:'Drive-Mad-Game-main/index.html',title:'DRIVE <em>MAD</em>'},'ragdoll-hit':{url:'https://ragdoll-hit.com/',title:'RAGDOLL <em>HIT</em>'},'ragdoll-archers':{url:'https://ragdollarcher.com/',title:'RAGDOLL <em>ARCHERS</em>'},'krunker':{url:'https://krunker.io/',title:'KRUNKER <em>IO</em>'} };
+document.querySelectorAll('[data-external-game]').forEach(btn=>btn.addEventListener('click',()=>{const game=externalGames[btn.dataset.externalGame];if(!game)return;if(externalGameFrame)externalGameFrame.src=game.url;if(externalGameTitle)externalGameTitle.innerHTML=game.title;externalGameModal?.classList.add('open');externalGameModal?.setAttribute('aria-hidden','false');document.body.classList.add('external-open')}));
 document.querySelectorAll('[data-shop-item]').forEach(button=>button.addEventListener('click',()=>purchaseItem(button.dataset.shopItem)));
 document.querySelectorAll('[data-case]').forEach(button=>button.addEventListener('click',()=>openCase(button.dataset.case)));
 redeemButton?.addEventListener('click',redeemReward);
 redeemCode?.addEventListener('keydown',event=>{if(event.key==='Enter')redeemReward()});
 document.getElementById('closeGame').addEventListener('click', closeGame);
+document.getElementById('closeExternalGame')?.addEventListener('click',()=>{externalGameModal?.classList.remove('open');externalGameModal?.setAttribute('aria-hidden','true');document.body.classList.remove('external-open');if(document.fullscreenElement)document.exitFullscreen()});
+fullscreenExternalGame?.addEventListener('click',()=>{const target=externalGameFrame||externalGameModal;if(document.fullscreenElement)document.exitFullscreen();else target?.requestFullscreen?.()});
 document.getElementById('restartGame').addEventListener('click',()=>startGame(gameType));
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key==='Escape')closeGame();if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault()});
 window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 renderShop();
 function openGame(type){gameType=type;bankedScore=0;modal.classList.add('open');modal.setAttribute('aria-hidden','false');startGame(type)}
 function closeGame(){bankCurrentScore();modal.classList.remove('open');modal.setAttribute('aria-hidden','true');running=false;cancelAnimationFrame(raf);ctx.clearRect(0,0,canvas.width,canvas.height)}
-function startGame(type){gameType=type;score=0;running=true;title.textContent=games[type].title;kicker.textContent=games[type].kicker;controlText.textContent=games[type].controls;messageEl.textContent='PRESS SPACE TO START';livesEl.textContent='♥ ♥ ♥';cancelAnimationFrame(raf);if(type==='parkour')parkour();if(type==='shooter')shooter();if(type==='survival')survival()}
+function startGame(type){gameType=type;score=0;running=true;title.textContent=games[type].title;kicker.textContent=games[type].kicker;controlText.textContent=games[type].controls;messageEl.textContent='PRESS SPACE TO START';livesEl.textContent='♥ ♥ ♥';cancelAnimationFrame(raf);if(type==='parkour')parkour();if(type==='shooter')shooter();if(type==='survival')survival();if(type==='sandbox')sandbox()}
 function text(t,x,y,size,color='#f4eee5',align='left'){ctx.fillStyle=color;ctx.font=`${size}px "DM Mono", monospace`;ctx.textAlign=align;ctx.fillText(t,x,y)}
 function bg(color){ctx.fillStyle=color;ctx.fillRect(0,0,900,480)}
 function hud(){scoreEl.textContent=`SCORE ${String(Math.floor(score)).padStart(4,'0')}`}
